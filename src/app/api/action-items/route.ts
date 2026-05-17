@@ -38,8 +38,8 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: "Yetkisiz" }, { status: 401 });
-  if (session.role === "MANAGER") {
-    return NextResponse.json({ error: "Yöneticiler aksiyon oluşturamaz" }, { status: 403 });
+  if (session.role === "MANAGER" || session.role === "TEAM_MEMBER") {
+    return NextResponse.json({ error: "Bu rol aksiyon oluşturamaz" }, { status: 403 });
   }
 
   const { sessionId, title, description, assigneeId, dueDate } = await request.json();

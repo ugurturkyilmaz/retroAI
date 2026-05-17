@@ -1,8 +1,8 @@
 # Frontend Dev Planı — Sayfalar ve Bileşenler
 
 ## Teknoloji
-- Next.js 14 App Router
-- Tailwind CSS
+- Next.js 16 App Router
+- Tailwind CSS v4 (`@import "tailwindcss"`)
 - Client/Server Component ayrımı
 
 ---
@@ -50,9 +50,29 @@ src/components/
 
 ---
 
+## Faz Görünümleri (Retro Board `/retros/[id]`)
+
+### BRAINSTORMING (Faz 1)
+- 5 dakika countdown timer (yeşil→sarı→kırmızı progress bar)
+- Kendi maddeleri net, başkalarının maddeleri `blur-sm select-none`
+- Blurlu maddelerde vote ve delete butonları gizlenir
+- SCRUM_MASTER için "Aksiyon Fazına Geç →" butonu
+- Timer bitince otomatik ACTION_ITEMS fazına geçer
+
+### ACTION_ITEMS (Faz 2)
+- Tüm maddeler blur olmadan görünür
+- Add form yok (canAdd=false RetroColumn'a geçilir)
+- Aksiyon maddeleri paneli (sadece SM ve TEAM_LEAD ekleyebilir)
+- `OpenActionsReminder` banner üstte görünür
+- SM için "Retroyu Kapat" butonu
+
+### CLOSED
+- Her şey read-only, form/buton yok
+
 ## Yetki Kuralları (UI)
 - `role === "MANAGER"` → madde ekleme formu, butonlar gizlenir
-- `role === "SCRUM_MASTER"` → retro kapat butonu görünür
+- `role === "TEAM_MEMBER"` → aksiyon ekleme formu gizlenir
+- `role === "SCRUM_MASTER"` → retro kapat / faz değiştir butonları görünür
 - `role === "TEAM_LEAD"` → sadece kendi aksiyonlarını güncelleyebilir
 
 ---

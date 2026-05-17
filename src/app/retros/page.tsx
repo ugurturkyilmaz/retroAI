@@ -16,8 +16,7 @@ interface Retro {
   title: string;
   date: string;
   status: string;
-  createdBy: { name: string };
-  _count: { retroItems: number; actionItems: number };
+  createdByName: string;
 }
 
 export default function RetrosPage() {
@@ -102,26 +101,31 @@ export default function RetrosPage() {
           {retros.length === 0 && (
             <p className="text-center text-gray-400 py-12 text-sm">Henüz retro yok.</p>
           )}
-          {retros.map((retro) => (
-            <Link key={retro.id} href={`/retros/${retro.id}`} className="block">
-              <div className="bg-white border border-gray-200 rounded-xl px-5 py-4 hover:border-indigo-300 hover:shadow-sm transition-all">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-gray-900 truncate">{retro.title}</h3>
-                    <p className="text-xs text-gray-500 mt-1">
-                      {new Date(retro.date).toLocaleDateString("tr-TR")} · {retro.createdBy.name}
-                    </p>
-                  </div>
-                  <div className="flex flex-col items-end gap-1.5 shrink-0">
-                    <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${retro.status === "ACTIVE" ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-600"}`}>
-                      {retro.status === "ACTIVE" ? "Aktif" : "Kapalı"}
-                    </span>
-                    <span className="text-xs text-gray-400">{retro._count.retroItems} madde · {retro._count.actionItems} aksiyon</span>
+          {retros.map((retro) => {
+            const statusLabel = retro.status === "BRAINSTORMING" ? "Beyin Fırtınası"
+              : retro.status === "ACTION_ITEMS" ? "Aksiyon Fazı"
+              : "Kapalı";
+            const isActive = retro.status === "BRAINSTORMING" || retro.status === "ACTION_ITEMS";
+            return (
+              <Link key={retro.id} href={`/retros/${retro.id}`} className="block">
+                <div className="bg-white border border-gray-200 rounded-xl px-5 py-4 hover:border-indigo-300 hover:shadow-sm transition-all">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-semibold text-gray-900 truncate">{retro.title}</h3>
+                      <p className="text-xs text-gray-500 mt-1">
+                        {new Date(retro.date).toLocaleDateString("tr-TR")} · {retro.createdByName}
+                      </p>
+                    </div>
+                    <div className="flex flex-col items-end gap-1.5 shrink-0">
+                      <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${isActive ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-600"}`}>
+                        {statusLabel}
+                      </span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </Link>
-          ))}
+              </Link>
+            );
+          })}
         </div>
       </main>
     </div>

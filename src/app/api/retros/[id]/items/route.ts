@@ -31,8 +31,8 @@ export async function POST(
     .where(eq(retroSessions.id, sessionId));
 
   if (!retro) return NextResponse.json({ error: "Retro bulunamadı" }, { status: 404 });
-  if (retro.status === "CLOSED") {
-    return NextResponse.json({ error: "Kapalı retroya madde eklenemez" }, { status: 400 });
+  if (retro.status !== "BRAINSTORMING") {
+    return NextResponse.json({ error: "Madde sadece Beyin Fırtınası aşamasında eklenebilir" }, { status: 400 });
   }
 
   const id = generateId();

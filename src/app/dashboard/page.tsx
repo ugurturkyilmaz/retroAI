@@ -81,9 +81,17 @@ export default async function DashboardPage() {
                 <p className="text-xs text-gray-500 mt-1">
                   {new Date(lastRetro.date).toLocaleDateString("tr-TR")} · {lastRetro.createdByName}
                 </p>
-                <span className={`mt-2 inline-block text-xs px-2 py-0.5 rounded-full ${lastRetro.status === "ACTIVE" ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-600"}`}>
-                  {lastRetro.status === "ACTIVE" ? "Aktif" : "Kapalı"}
-                </span>
+                {(() => {
+                  const statusLabel = lastRetro.status === "BRAINSTORMING" ? "Beyin Fırtınası"
+                    : lastRetro.status === "ACTION_ITEMS" ? "Aksiyon Fazı"
+                    : "Kapalı";
+                  const isActive = lastRetro.status === "BRAINSTORMING" || lastRetro.status === "ACTION_ITEMS";
+                  return (
+                    <span className={`mt-2 inline-block text-xs px-2 py-0.5 rounded-full ${isActive ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-600"}`}>
+                      {statusLabel}
+                    </span>
+                  );
+                })()}
               </>
             ) : (
               <p className="text-sm text-gray-400">Henüz retro yok</p>

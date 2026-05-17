@@ -19,6 +19,7 @@ export async function GET(
       title: retroSessions.title,
       date: retroSessions.date,
       status: retroSessions.status,
+      phaseStartedAt: retroSessions.phaseStartedAt,
       createdByName: users.name,
       createdByRole: users.role,
     })
@@ -58,12 +59,8 @@ export async function GET(
     .leftJoin(users, eq(actionItems.assigneeId, users.id))
     .where(eq(actionItems.sessionId, id));
 
-  // Daha önce bu retroya taşınmış eski aksiyon ID'leri
-  const carriedIds = actions
-    .map((a) => a.carriedFromId)
-    .filter(Boolean) as string[];
+  const carriedIds = actions.map((a) => a.carriedFromId).filter(Boolean) as string[];
 
-  // Önceki KAPALI retrolardan açık kalan aksiyonlar (KRİTİK: hatırlatma)
   const closedSessionsResult = await db
     .select({ id: retroSessions.id })
     .from(retroSessions)
@@ -92,12 +89,9 @@ export async function GET(
         and(
           inArray(actionItems.status, ["OPEN", "IN_PROGRESS"]),
           inArray(actionItems.sessionId, closedIds),
-          carriedIds.length > 0
-            ? notInArray(actionItems.id, carriedIds)
-            : undefined
+          carriedIds.length > 0 ? notInArray(actionItems.id, carriedIds) : undefined
         )
       );
-
     openCarryOvers = await baseQuery;
   }
 
@@ -128,16 +122,18 @@ export async function PATCH(
   const session = await getSession();
   if (!session) return NextResponse.json({ error: "Yetkisiz" }, { status: 401 });
   if (session.role !== "SCRUM_MASTER") {
-    return NextResponse.json({ error: "Sadece Scrum Master kapatabilir" }, { status: 403 });
+    return NextResponse.json({ error: "Sadece Scrum Master fazı değiştirebilir" }, { status: 403 });
   }
 
   const { id } = await params;
   const { status } = await request.json();
 
-  await db
-    .update(retroSessions)
-    .set({ status })
-    .where(eq(retroSessions.id, id));
+  const validStatuses = ["BRAINSTORMING", "ACTION_ITEMS", "CLOSED"];
+  if (!validStatuses.includes(status)) {
+    return NextResponse.json({ error: "Geçersiz durum" }, { status: 400 });
+  }
+
+  await db.update(retroSessions).set({ status }).where(eq(retroSessions.id, id));
 
   return NextResponse.json({ ok: true });
 }

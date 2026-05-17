@@ -11,8 +11,8 @@ export async function POST(
 ) {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: "Yetkisiz" }, { status: 401 });
-  if (session.role === "MANAGER") {
-    return NextResponse.json({ error: "Yöneticiler bu işlemi yapamaz" }, { status: 403 });
+  if (session.role === "MANAGER" || session.role === "TEAM_MEMBER") {
+    return NextResponse.json({ error: "Bu rol bu işlemi yapamaz" }, { status: 403 });
   }
 
   const { id: carriedFromId } = await params;

@@ -21,11 +21,11 @@ export async function PATCH(
 
   if (!existing) return NextResponse.json({ error: "Bulunamadı" }, { status: 404 });
 
+  if (session.role === "MANAGER" || session.role === "TEAM_MEMBER") {
+    return NextResponse.json({ error: "Bu rol güncelleme yapamaz" }, { status: 403 });
+  }
   if (session.role === "TEAM_LEAD" && existing.assigneeId !== session.userId) {
     return NextResponse.json({ error: "Sadece kendi aksiyonlarınızı güncelleyebilirsiniz" }, { status: 403 });
-  }
-  if (session.role === "MANAGER") {
-    return NextResponse.json({ error: "Yöneticiler güncelleme yapamaz" }, { status: 403 });
   }
 
   const updateData: Partial<typeof actionItems.$inferInsert> = {};

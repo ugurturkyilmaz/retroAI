@@ -15,6 +15,7 @@ interface Props {
   items: RetroItem[];
   sessionId: string;
   canAdd: boolean;
+  phase: "BRAINSTORMING" | "ACTION_ITEMS" | "CLOSED";
   currentUserId: string;
   isScrumMaster: boolean;
   onItemAdded: (item: RetroItem) => void;
@@ -28,7 +29,7 @@ const COLUMN_CONFIG = {
   CONTINUE: { label: "Devam Et", bg: "bg-blue-50", border: "border-blue-200", header: "bg-blue-100 text-blue-800" },
 };
 
-export default function RetroColumn({ column, items, sessionId, canAdd, currentUserId, isScrumMaster, onItemAdded, onItemDeleted, onVote }: Props) {
+export default function RetroColumn({ column, items, sessionId, canAdd, phase, currentUserId, isScrumMaster, onItemAdded, onItemDeleted, onVote }: Props) {
   const [content, setContent] = useState("");
   const [loading, setLoading] = useState(false);
   const config = COLUMN_CONFIG[column];
@@ -78,30 +79,41 @@ export default function RetroColumn({ column, items, sessionId, canAdd, currentU
       </div>
 
       <div className="flex-1 p-3 space-y-2 overflow-y-auto max-h-96">
-        {items.map((item) => (
-          <div key={item.id} className="bg-white rounded-lg border border-gray-100 p-3 group">
-            <p className="text-sm text-gray-800">{item.content}</p>
-            <div className="flex items-center justify-between mt-2">
-              <span className="text-xs text-gray-400">{item.author.name}</span>
-              <div className="flex items-center gap-1">
-                <button
-                  onClick={() => handleVote(item)}
-                  className="text-xs text-gray-400 hover:text-indigo-600 transition-colors flex items-center gap-0.5"
-                >
-                  👍 {item.votes}
-                </button>
-                {(isScrumMaster || item.authorId === currentUserId) && (
-                  <button
-                    onClick={() => handleDelete(item.id)}
-                    className="text-xs text-gray-300 hover:text-red-500 ml-2 opacity-0 group-hover:opacity-100 transition-opacity"
-                  >
-                    ✕
-                  </button>
+        {items.map((item) => {
+          const isBlurred = phase === "BRAINSTORMING" && item.authorId !== currentUserId;
+          return (
+            <div key={item.id} className="bg-white rounded-lg border border-gray-100 p-3 group">
+              <p className={`text-sm text-gray-800 ${isBlurred ? "blur-sm select-none" : ""}`}>
+                {item.content}
+              </p>
+              <div className="flex items-center justify-between mt-2">
+                <span className={`text-xs text-gray-400 ${isBlurred ? "blur-sm" : ""}`}>
+                  {isBlurred ? "..." : item.author.name}
+                </span>
+                {!isBlurred && (
+                  <div className="flex items-center gap-1">
+                    {phase !== "BRAINSTORMING" && (
+                      <button
+                        onClick={() => handleVote(item)}
+                        className="text-xs text-gray-400 hover:text-indigo-600 transition-colors flex items-center gap-0.5"
+                      >
+                        👍 {item.votes}
+                      </button>
+                    )}
+                    {(isScrumMaster || item.authorId === currentUserId) && phase !== "CLOSED" && (
+                      <button
+                        onClick={() => handleDelete(item.id)}
+                        className="text-xs text-gray-300 hover:text-red-500 ml-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        ✕
+                      </button>
+                    )}
+                  </div>
                 )}
               </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {canAdd && (
